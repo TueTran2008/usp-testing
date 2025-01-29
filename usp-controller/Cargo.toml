@@ -1,0 +1,20 @@
+[package]
+name = "usp-controller"
+version = "0.1.0"
+edition = "2021"
+authors = ["Darwin Tran <darwin_tran@vn.gemteks.com>"]
+
+[lib]
+# We could use any path here, but we are following the community convention
+# We could specify a library name using the `name` field. If unspecified,
+# cargo will default to `package.name`, which is what we want.
+path = "src/lib.rs"
+
+[dependencies]
+tokio = { version = "1.23.0", features = ["full"] }
+axum = { version = "0.8.1"}
+prost = "0.13"
+prost-types = "0.13.4"
+
+[build-dependencies]
+prost-build = "0.13.4"
