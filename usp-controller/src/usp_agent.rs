@@ -1,5 +1,3 @@
-use crate::protobuf::usp_msg::Record;
-
 pub struct UspAgent {
     eid: String, // Endpoint ID of agent
                  //tx_record: Record,

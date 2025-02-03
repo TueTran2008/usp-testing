@@ -1,17 +1,13 @@
 use paho_mqtt::{self as mqtt, AsyncClient};
 use std::{process, time::Duration};
 
-// The topics to which we subscribe.
-// const TOPICS: &[&str] = &["test", "hello"];
-// const QOS: &[i32] = &[1, 1];
-//
-#[warn(dead_code)]
-pub struct ClientInfo {
-    host: String,
-    client_id: String,
-    user_name: String,
-    password: String,
-}
+// #[warn(dead_code)]
+// pub struct ClientInfo {
+//     host: String,
+//     client_id: String,
+//     user_name: String,
+//     password: String,
+// }
 pub struct MQTTClient {
     pub client: AsyncClient,
 }
