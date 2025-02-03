@@ -8,6 +8,7 @@ use std::{process, time::Duration};
 //     user_name: String,
 //     password: String,
 // }
+
 pub struct MQTTClient {
     pub client: AsyncClient,
 }

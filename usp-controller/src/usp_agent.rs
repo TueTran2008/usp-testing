@@ -1,7 +1,5 @@
 pub struct UspAgent {
-    eid: String, // Endpoint ID of agent
-                 //tx_record: Record,
-                 //rx_record: Record,
+    eid: String,
 }
 
 impl UspAgent {
