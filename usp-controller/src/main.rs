@@ -32,7 +32,7 @@ async fn main() {
     tokio::spawn(async move {
         for mqttmsg in rx_queue.iter() {
             if let Some(mqttmsg) = mqttmsg {
-                info!("Received: -> {}", mqttmsg.payload_str());
+                //info!("Received: -> {}", mqttmsg.payload_str());
                 mqtt_tx.send(mqttmsg).await.unwrap();
                 info!("Send to channel okay");
             } else {
@@ -47,8 +47,12 @@ async fn main() {
         let record_result = usp_msg_handle::UspMsgHandle::usp_record_decode(msg.payload());
         match record_result {
             Ok(record) => {
-                usp_msg_handle::UspMsgHandle::usp_record_debug(record);
-                info!("decode record successfully");
+                usp_msg_handle::UspMsgHandle::usp_record_debug(&record);
+                let msg = match usp_msg_handle::UspMsgHandle::usp_record_unpack(&record) {
+                    Ok(message) => message,
+                    Err(_) => panic!("hello"),
+                };
+                usp_msg_handle::UspMsgHandle::usp_msg_debug(&msg);
             }
             Err(e) => {
                 error!("Error when decode result {:?}", e);
