@@ -1,6 +1,3 @@
-use crate::usp_agent;
-use usp_agent::UspAgent;
-
 pub mod usp_msg {
     include!(concat!(env!("OUT_DIR"), "/usp.rs"));
     include!(concat!(env!("OUT_DIR"), "/usp_record.rs"));

@@ -2,9 +2,10 @@ use tokio::sync::mpsc;
 
 use axum::{routing::get, Router};
 use env_logger;
-use log::{error, info, warn};
 use paho_mqtt::MqttVersion;
-use usp_controller::{mqtt_client, usp_msg_handle};
+use tracing::{error, info, warn};
+use tracing_subscriber::filter::LevelFilter;
+use usp_controller::{mqtt_client, telemetry, usp_msg_handle};
 //use prost
 #[tokio::main]
 async fn main() {
@@ -14,7 +15,8 @@ async fn main() {
     // // run our app with hyper, listening globally on port 3000
     // let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     // axum::serve(listener, app).await.unwrap();
-    env_logger::init();
+    let web_subcriber = telemetry::get_subscriber("zero2prod_app".into(), LevelFilter::INFO.into());
+    telemetry::init_subscriber(web_subcriber);
     let mqtt_client = mqtt_client::MQTTClient::connect(
         MqttVersion::V3_1,
         "mqtt://localhost:1883",

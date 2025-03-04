@@ -1,10 +1,12 @@
 use crate::protobuf::usp_msg::body::MsgBody;
 use crate::protobuf::usp_msg::record::{PayloadSecurity, RecordType};
+use crate::protobuf::usp_msg::request::ReqType;
+use crate::protobuf::usp_msg::Msg;
 use crate::protobuf::usp_msg::Record;
-use crate::protobuf::usp_msg::{Body, Header, Msg};
 use crate::usp_agent::{UspAgent, UspError};
-use log::{error, info, warn};
 use prost::Message;
+use tracing::{error, info, warn};
+
 pub struct UspMsgHandle {
     buf: Vec<u8>,
     agent: UspAgent,
@@ -44,9 +46,15 @@ impl UspMsgHandle {
                             i = i + 1;
                         }
                     }
-                    // MsgBody::Request(request) => {
-                    //     request.
-                    // },
+                    MsgBody::Request(request) => {
+                        if let Some(ref req_type) = request.req_type {
+                            match req_type {
+                                ReqType::Get(get_request) => {}
+
+                                _ => panic!("Hehe"),
+                            }
+                        }
+                    }
                     _ => {
                         info!("do things");
                     }
