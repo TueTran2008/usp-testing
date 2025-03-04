@@ -54,7 +54,7 @@ async fn main() {
                     Ok(message) => message,
                     Err(_) => panic!("hello"),
                 };
-                usp_msg_handle::UspMsgHandle::usp_msg_debug(&msg);
+                // usp_msg_handle::UspMsgHandle::usp_msg_debug(&msg);
             }
             Err(e) => {
                 error!("Error when decode result {:?}", e);
