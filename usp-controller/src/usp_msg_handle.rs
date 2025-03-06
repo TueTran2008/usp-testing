@@ -5,9 +5,9 @@ use crate::protobuf::usp_msg::request::ReqType;
 use crate::protobuf::usp_msg::Record;
 use crate::protobuf::usp_msg::{GetResp, Msg, SetResp};
 use crate::usp_agent::{UspAgent, UspError};
-
 use prost::Message;
 use std::collections::HashMap;
+use std::io::{Error, ErrorKind};
 use std::sync::Arc;
 use thiserror::Error;
 use tracing::{debug, error, info, warn};
@@ -18,7 +18,12 @@ pub struct UspMsgHandle {
 }
 
 pub struct MessageDispatcher {
-    handlers: HashMap<MsgType, Box<dyn MessageHandler>>,
+    handlers: HashMap<MsgType, Arc<dyn MessageHandler>>,
+}
+
+// Builder for MessageDispatcher
+pub struct MessageDispatcherBuilder {
+    handlers: HashMap<MsgType, Arc<dyn MessageHandler>>,
 }
 
 #[derive(Error, Debug)]
@@ -36,11 +41,6 @@ trait MessageHandler: Send + Sync {
     fn message_type(&self) -> MsgType;
 }
 
-// Builder for MessageDispatcher
-pub struct MessageDispatcherBuilder {
-    handlers: HashMap<MsgType, Arc<dyn MessageHandler>>,
-}
-
 impl MessageDispatcherBuilder {
     pub fn new() -> Self {
         let handlers = HashMap::new();
@@ -50,7 +50,7 @@ impl MessageDispatcherBuilder {
     fn add_handler<H: MessageHandler + 'static>(
         mut self,
         msg_handle: H,
-    ) -> Result<(), MessageDispatcherError> {
+    ) -> Result<Self, MessageDispatcherError> {
         let msg_type = msg_handle.message_type();
         if self.handlers.contains_key(&msg_type) {
             return Err(MessageDispatcherError::HandlerAlreadyExist(
@@ -58,23 +58,64 @@ impl MessageDispatcherBuilder {
             ));
         }
         self.handlers.insert(msg_type, Arc::new(msg_handle));
+        Ok(self)
+    }
+    pub fn build(self) -> MessageDispatcher {
+        MessageDispatcher {
+            handlers: self.handlers,
+        }
+    }
+}
+
+impl MessageDispatcher {
+    pub fn register_handle(
+        &mut self,
+        handler: Arc<dyn MessageHandler>,
+    ) -> Result<(), MessageDispatcherError> {
+        let msg_type = handler.message_type();
+        if self.handlers.contains_key(&msg_type) {
+            return Err(MessageDispatcherError::HandlerAlreadyExist(
+                msg_type.as_str_name().to_string(),
+            ));
+        }
+        self.handlers.insert(msg_type, handler);
+        Ok(())
+    }
+    // This is controller => I prefer we will do the message response handle first
+    pub fn message_handle(
+        &self,
+        msg: &Msg,
+        from_eid: &String,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let header = msg.header.as_ref().ok_or_else(|| {
+            error!("Receive message with invalid header");
+            Box::new(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                "No header",
+            ))
+        })?;
+
+        let msg_handle = self.handlers.get(&header.msg_type()).ok_or_else(|| {
+            let ref msg_type = header.msg_type();
+            error!(message_type = %msg_type.as_str_name(), "No handler for Message Header");
+            Box::new(MessageDispatcherError::NoHandlerFound(
+                msg_type.as_str_name().to_string(),
+            ))
+        })?;
+        msg_handle.handle(msg, from_eid);
         Ok(())
     }
 }
-impl MessageDispatcher {
-    // This is controller => I prefer we will do the message response handle first
-    pub fn usp_message_handle(&self, msg: &Msg, from_eid: &String) {
-        if let Some(ref header) = msg.header {
-            debug!(message_id = %header.msg_id,
-                   message_type = %header.msg_type().as_str_name(),
-                   endpoint_id = %from_eid, "Receive USP Message");
 
-            if let Some(handler) = self.handlers.get(&header.msg_type()) {
-                handler.handle(msg, from_eid);
-            } else {
-                error!(message_type = %header.msg_type().as_str_name(), "No handler found for message");
-            }
-        }
+struct GetResponseHandle;
+
+impl MessageHandler for GetResponseHandle {
+    fn message_type(&self) -> MsgType {
+        MsgType::Get
+    }
+
+    fn handle(&self, msg: &Msg, from_eid: &str) {
+        if let Some(ref body) = msg.body {}
     }
 }
 
