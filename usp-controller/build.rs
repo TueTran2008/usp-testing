@@ -9,6 +9,5 @@ fn main() {
         &["protobuf_file/"],
     )
     .unwrap();
-    println!("hahahahah test prost build");
 }
 // send msg
