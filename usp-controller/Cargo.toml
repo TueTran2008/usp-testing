@@ -21,6 +21,7 @@ log = "0.4.25"
 thiserror = "2"
 serde = "1.0.219"
 futures = "0.3.28"
+config = "0.15.9"
 
 tracing = { version = "0.1.41", feature = ["log"]}
 tracing-bunyan-formatter = "0.3"

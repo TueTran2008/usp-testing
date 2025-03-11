@@ -1,3 +1,4 @@
+pub mod configuration;
 pub mod mqtt_client;
 pub mod protobuf;
 pub mod telemetry;
