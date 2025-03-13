@@ -5,10 +5,7 @@ use env_logger;
 use paho_mqtt::MqttVersion;
 use tracing::{error, info, warn};
 use tracing_subscriber::filter::LevelFilter;
-use usp_controller::{
-    configuration::{self, DatabaseSetting},
-    mqtt_client, telemetry, usp_msg_handle,
-};
+use usp_controller::{configuration::Setting, mqtt_client, telemetry, usp_msg_handle};
 //use prost
 #[tokio::main]
 async fn main() {
@@ -20,12 +17,15 @@ async fn main() {
     // axum::serve(listener, app).await.unwrap();
     let web_subcriber = telemetry::get_subscriber("zero2prod_app".into(), LevelFilter::INFO.into());
     telemetry::init_subscriber(web_subcriber);
-    DatabaseSetting::get_database_setting();
+    let setting = Setting::get_setting().unwrap_or_else(|err| {
+        panic!("Cannot read configuration {:?}", err);
+    });
+    info!("Read setting {:?}", setting);
     let mqtt_client = mqtt_client::MQTTClient::connect(
         MqttVersion::V3_1,
         "mqtt://localhost:1883",
         "darwin_tran",
-        "gemtek",
+        "darwin_tran",
         "Gemtek@123",
     )
     .await;

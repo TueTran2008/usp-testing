@@ -1,8 +1,14 @@
 # configuration.yaml
 # application_port: 8000
-# database: 
-host: "localhost"
-port: 5432
-username: "postgres"
-password: "password"
-database_name: "newsletter"
+
+database: 
+  host: "localhost"
+  port: 27017
+  username: "controller"
+  password: "123"
+  database_name: "usp_controller"
+mqtt:
+  host: "localhost"
+  port: 1883
+  username: "darwin_tran"
+  password: "Gemtek@123"
