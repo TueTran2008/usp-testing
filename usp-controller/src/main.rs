@@ -1,32 +1,64 @@
-use tokio::sync::mpsc;
-
 use axum::{routing::get, Router};
 use env_logger;
+use mongodb::options::ClientOptions;
+use mongodb::{
+    bson::doc,
+    options::{ServerApi, ServerApiVersion},
+    Client,
+};
 use paho_mqtt::MqttVersion;
+use std::error::Error;
+use tokio::sync::mpsc;
 use tracing::{error, info, warn};
 use tracing_subscriber::filter::LevelFilter;
 use usp_controller::{configuration::Setting, mqtt_client, telemetry, usp_msg_handle};
 //use prost
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn Error>> {
     // build our application with a single route
     // let app = Router::new().route("/", get(|| async { "Hello, World!" }));
     //
     // // run our app with hyper, listening globally on port 3000
     // let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     // axum::serve(listener, app).await.unwrap();
-    let web_subcriber = telemetry::get_subscriber("zero2prod_app".into(), LevelFilter::INFO.into());
+
+    /*Get configuration*/
+    let web_subcriber =
+        telemetry::get_subscriber("usp_controller".into(), LevelFilter::INFO.into());
     telemetry::init_subscriber(web_subcriber);
     let setting = Setting::get_setting().unwrap_or_else(|err| {
         panic!("Cannot read configuration {:?}", err);
     });
     info!("Read setting {:?}", setting);
+
+    /*Connect to MongoDB*/
+    let mut client_options = ClientOptions::parse(setting.get_database_connect_string()).await?;
+
+    // Set the server_api field of the client_options object to Stable API version 1
+    let server_api = ServerApi::builder().version(ServerApiVersion::V1).build();
+    client_options.server_api = Some(server_api);
+    // Create a new client and connect to the server
+    let client = Client::with_options(client_options).unwrap();
+
+    // Print the databases in our MongoDB server
+    info!("Available databases:");
+    for db_name in client.list_database_names().await? {
+        info!("- {}", db_name);
+    }
+    // Send a ping to confirm a successful connection
+    client
+        .database(&setting.database.database_name)
+        .run_command(doc! { "ping": 1 })
+        .await
+        .unwrap();
+    info!("Pinged your deployment. You successfully connected to MongoDB!");
+    /*Connect to MQTT Broker*/
     let mqtt_client = mqtt_client::MQTTClient::connect(
         MqttVersion::V3_1,
-        "mqtt://localhost:1883",
+        &setting.get_mqtt_url(),
         "darwin_tran",
-        "darwin_tran",
-        "Gemtek@123",
+        &setting.mqtt.username,
+        &setting.mqtt.password,
     )
     .await;
     let rx_queue = mqtt_client.client.start_consuming();
@@ -66,4 +98,5 @@ async fn main() {
             }
         };
     }
+    Ok(())
 }

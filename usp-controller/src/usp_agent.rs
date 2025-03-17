@@ -1,3 +1,8 @@
+use crate::protobuf::usp_msg::body::MsgBody;
+use crate::protobuf::usp_msg::header::MsgType;
+use crate::protobuf::usp_msg::Msg;
+use crate::usp_msg_handle::MessageHandler;
+use tracing::{error, info};
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(i32)]
 pub enum UspError {
@@ -102,6 +107,28 @@ impl UspError {
 
 pub struct UspAgent {
     eid: String,
+}
+
+struct GetResponseHandle;
+
+impl MessageHandler for GetResponseHandle {
+    fn message_type(&self) -> MsgType {
+        MsgType::Get
+    }
+
+    fn handle(&self, msg: &Msg, from_eid: &str) {
+        let body = msg.body.as_ref().unwrap();
+        let msg_body = body.msg_body.as_ref().unwrap();
+        match msg_body {
+            MsgBody::Response(res) => {
+                // do something
+                info!("Message get response {:?}", res);
+            }
+            _ => {
+                error!("Not and get response");
+            }
+        }
+    }
 }
 
 impl UspAgent {

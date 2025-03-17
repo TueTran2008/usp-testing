@@ -7,7 +7,7 @@ use crate::protobuf::usp_msg::{GetResp, Msg, SetResp};
 use crate::usp_agent::{UspAgent, UspError};
 use prost::Message;
 use std::collections::HashMap;
-use std::io::{Error, ErrorKind};
+// use std::io::{Error, ErrorKind};
 use std::sync::Arc;
 use thiserror::Error;
 use tracing::{debug, error, info, warn};
@@ -36,7 +36,7 @@ pub enum MessageDispatcherError {
 
 // Trait for message handlers with dynamic dispatch
 // Trait for handling different message types
-trait MessageHandler: Send + Sync {
+pub trait MessageHandler: Send + Sync {
     fn handle(&self, msg: &Msg, from_eid: &str);
     fn message_type(&self) -> MsgType;
 }
@@ -104,18 +104,6 @@ impl MessageDispatcher {
         })?;
         msg_handle.handle(msg, from_eid);
         Ok(())
-    }
-}
-
-struct GetResponseHandle;
-
-impl MessageHandler for GetResponseHandle {
-    fn message_type(&self) -> MsgType {
-        MsgType::Get
-    }
-
-    fn handle(&self, msg: &Msg, from_eid: &str) {
-        if let Some(ref body) = msg.body {}
     }
 }
 
