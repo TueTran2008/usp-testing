@@ -1,16 +1,21 @@
-use crate::protobuf::usp_msg::body::MsgBody;
-use crate::protobuf::usp_msg::header::MsgType;
-use crate::protobuf::usp_msg::record::{PayloadSecurity, RecordType};
-use crate::protobuf::usp_msg::request::ReqType;
-use crate::protobuf::usp_msg::Record;
-use crate::protobuf::usp_msg::{GetResp, Msg, SetResp};
+// use crate::protobuf::usp_msg::body::MsgBody;
+// use crate::protobuf::usp_msg::header::MsgType;
+// use crate::protobuf::usp_msg::record::{PayloadSecurity, RecordType};
+// use crate::protobuf::usp_msg::request::ReqType;
+// use crate::protobuf::usp_msg::Record;
+
+pub mod usp_msg {
+    include!(concat!(env!("OUT_DIR"), "/usp.rs"));
+    include!(concat!(env!("OUT_DIR"), "/usp_record.rs"));
+}
 use crate::usp_agent::{UspAgent, UspError};
 use prost::Message;
 use std::collections::HashMap;
-// use std::io::{Error, ErrorKind};
 use std::sync::Arc;
 use thiserror::Error;
-use tracing::{debug, error, info, warn};
+use tracing::{error, info, warn};
+use usp_msg::{header::MsgType, Msg, Record};
+
 
 pub struct UspMsgHandle {
     buf: Vec<u8>,
@@ -25,7 +30,6 @@ pub struct MessageDispatcher {
 pub struct MessageDispatcherBuilder {
     handlers: HashMap<MsgType, Arc<dyn MessageHandler>>,
 }
-
 #[derive(Error, Debug)]
 pub enum MessageDispatcherError {
     #[error("Handler already exists for message type: {0}")]
@@ -34,10 +38,13 @@ pub enum MessageDispatcherError {
     NoHandlerFound(String),
 }
 
+pub trait UspMessageCreate {
+    fn create_msg(&self) -> usp_msg::Msg;
+}
 // Trait for message handlers with dynamic dispatch
 // Trait for handling different message types
 pub trait MessageHandler: Send + Sync {
-    fn handle(&self, msg: &Msg, from_eid: &str);
+    fn handle(&self, msg: &, from_eid: &str);
     fn message_type(&self) -> MsgType;
 }
 
