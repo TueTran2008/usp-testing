@@ -1,7 +1,9 @@
-use crate::protobuf::usp_msg::body::MsgBody;
 use crate::protobuf::usp_msg::header::MsgType;
-use crate::protobuf::usp_msg::Msg;
+use crate::protobuf::usp_msg::record::{PayloadSecurity, RecordType};
+use crate::protobuf::usp_msg::{self, Msg, NoSessionContextRecord};
+use crate::protobuf::usp_msg::{body::MsgBody, Record};
 use crate::usp_msg_handle::MessageHandler;
+use prost::Message;
 use tracing::{error, info};
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(i32)]
@@ -139,14 +141,26 @@ impl UspAgent {
         &self.eid
     }
     pub fn validate_eid(&self, target: &str) -> Result<(), ()> {
-        if let eid = self.eid.as_str() {
-            if eid == target {
-                Ok(())
-            } else {
-                Err(())
-            }
+        let eid = self.eid.as_str();
+        if eid == target {
+            Ok(())
         } else {
             Err(())
+        }
+    }
+
+    pub fn create_record(&self, msg: &Msg, to_eid: &String) -> Record {
+        let usp_message = msg.encode_to_vec();
+        Record {
+            version: "1.3".to_string(),
+            to_id: to_eid.to_string(),
+            from_id: self.get_eid().to_string(),
+            payload_security: PayloadSecurity::Plaintext.into(),
+            record_type: Some(RecordType::NoSessionContext(NoSessionContextRecord {
+                payload: usp_message,
+            })),
+            mac_signature: Vec::new(),
+            sender_cert: Vec::new(),
         }
     }
 }

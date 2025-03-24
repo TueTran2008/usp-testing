@@ -1,7 +1,5 @@
 use config::{Config, ConfigError};
 use serde::Deserialize;
-use std::collections::HashMap;
-use tracing::info;
 
 #[derive(Deserialize, Debug)]
 pub struct Setting {

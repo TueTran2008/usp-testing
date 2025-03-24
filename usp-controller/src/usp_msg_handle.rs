@@ -1,22 +1,18 @@
-// use crate::protobuf::usp_msg::body::MsgBody;
-// use crate::protobuf::usp_msg::header::MsgType;
-// use crate::protobuf::usp_msg::record::{PayloadSecurity, RecordType};
-// use crate::protobuf::usp_msg::request::ReqType;
-// use crate::protobuf::usp_msg::Record;
-
-pub mod usp_msg {
-    include!(concat!(env!("OUT_DIR"), "/usp.rs"));
-    include!(concat!(env!("OUT_DIR"), "/usp_record.rs"));
-}
-use crate::usp_agent::{UspAgent, UspError};
+use crate::{
+    protobuf::usp_msg::{
+        header::MsgType,
+        record::{PayloadSecurity, RecordType},
+        Msg, Record,
+    },
+    usp_agent::{UspAgent, UspError},
+};
 use prost::Message;
 use std::collections::HashMap;
 use std::sync::Arc;
 use thiserror::Error;
 use tracing::{error, info, warn};
-use usp_msg::{header::MsgType, Msg, Record};
-
-
+// use usp_msg::{header::MsgType, Msg, Record};
+#[warn(dead_code)]
 pub struct UspMsgHandle {
     buf: Vec<u8>,
     agent: UspAgent,
@@ -39,12 +35,12 @@ pub enum MessageDispatcherError {
 }
 
 pub trait UspMessageCreate {
-    fn create_msg(&self) -> usp_msg::Msg;
+    fn create_msg(&self) -> Msg;
 }
 // Trait for message handlers with dynamic dispatch
 // Trait for handling different message types
 pub trait MessageHandler: Send + Sync {
-    fn handle(&self, msg: &, from_eid: &str);
+    fn handle(&self, msg: &Msg, from_eid: &str);
     fn message_type(&self) -> MsgType;
 }
 
@@ -64,6 +60,7 @@ impl MessageDispatcherBuilder {
                 msg_type.as_str_name().to_string(),
             ));
         }
+
         self.handlers.insert(msg_type, Arc::new(msg_handle));
         Ok(self)
     }
