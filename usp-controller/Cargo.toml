@@ -22,7 +22,7 @@ thiserror = "2"
 serde = "1.0.219"
 futures = "0.3.28"
 config = "0.15.9"
-
+async-trait = "0.1.88"
 tracing = { version = "0.1.41", feature = ["log"]}
 tracing-bunyan-formatter = "0.3"
 tracing-subscriber = { version = "0.3.19" , features = ["registry", "env-filter"]}

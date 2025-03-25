@@ -3,7 +3,9 @@ use crate::protobuf::usp_msg::record::{PayloadSecurity, RecordType};
 use crate::protobuf::usp_msg::{self, Msg, NoSessionContextRecord};
 use crate::protobuf::usp_msg::{body::MsgBody, Record};
 use crate::usp_msg_handle::MessageHandler;
+use crate::usp_mtp::UspAgentMtpInstance;
 use prost::Message;
+use std::collections::HashMap;
 use tracing::{error, info};
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(i32)]
@@ -109,6 +111,7 @@ impl UspError {
 
 pub struct UspAgent {
     eid: String,
+    mtp: HashMap<u32, UspAgentMtpInstance>,
 }
 
 struct GetResponseHandle;

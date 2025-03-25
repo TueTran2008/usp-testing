@@ -5,3 +5,4 @@ pub mod telemetry;
 pub mod usp_agent;
 pub mod usp_get;
 pub mod usp_msg_handle;
+pub mod usp_mtp;
