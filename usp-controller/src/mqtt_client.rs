@@ -11,8 +11,6 @@ use std::{collections::HashMap, process, time::Duration};
 
 pub struct MQTTClient {
     pub client: AsyncClient,
-    pub subscribe_topic: String,
-    pub response_topic: String,
 }
 
 impl MQTTClient {

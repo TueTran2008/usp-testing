@@ -111,7 +111,7 @@ impl UspError {
 
 pub struct UspAgent {
     eid: String,
-    mtp: HashMap<u32, UspAgentMtpInstance>,
+    // mtp: HashMap<u32, UspAgentMtpInstance>,
 }
 
 struct GetResponseHandle;
