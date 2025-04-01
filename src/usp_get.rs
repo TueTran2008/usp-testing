@@ -1,12 +1,12 @@
-use crate::telemetry::*;
+// use crate::telemetry:*;
 use crate::{
     protobuf::usp_msg::{
         body::MsgBody, header::MsgType, request::ReqType, Body, Get, Header, Msg, Request,
     },
     usp_msg_handle::UspMessageCreate,
 };
-use std::sync::OnceLock;
-use tracing_subscriber::filter::LevelFilter;
+// use std::sync::OnceLock;
+// use tracing_subscriber::filter::LevelFilter;
 
 pub struct USPGet<'a> {
     param_paths: &'a [String],
@@ -14,15 +14,13 @@ pub struct USPGet<'a> {
     msg_id: &'a str,
 }
 
-static TRACING: OnceLock<()> = OnceLock::new();
-fn tracing_init() {
-    assert!(TRACING.get().is_none());
-    let _tracing = TRACING.get_or_init(|| {
-        let test_sub = get_subscriber("test_debug".into(), LevelFilter::INFO.into());
-        init_subscriber(test_sub);
-    });
-    assert!(TRACING.get().is_none());
-}
+// static TRACING: OnceLock<()> = OnceLock::new();
+// fn tracing_init() {
+//     let _tracing = TRACING.get_or_init(|| {
+//         let test_sub = get_subscriber("test_debug".into(), LevelFilter::INFO.into());
+//         init_subscriber(test_sub);
+//     });
+// }
 
 impl<'a> UspMessageCreate for USPGet<'a> {
     fn create_msg(&self) -> Msg {
@@ -51,8 +49,10 @@ impl<'a> UspMessageCreate for USPGet<'a> {
 mod test {
     use super::*;
     use crate::{usp_agent::UspAgent, usp_get::USPGet, usp_msg_handle::UspMessageCreate};
+    // use tracing::ifo;
+    #[test]
     fn get_la_success() {
-        tracing_init();
+        // tracing_init();
         let param_path = String::from("Device.LocalAgent.");
         let mut parameters: Vec<String> = Vec::new();
         parameters.push(param_path);

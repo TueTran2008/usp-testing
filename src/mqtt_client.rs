@@ -1,5 +1,5 @@
 use paho_mqtt::{self as mqtt, AsyncClient};
-use std::{collections::HashMap, process, time::Duration};
+use std::{process, time::Duration};
 
 // #[warn(dead_code)]
 // pub struct ClientInfo {
