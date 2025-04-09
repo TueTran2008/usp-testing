@@ -1,4 +1,4 @@
-use crate::protobuf::usp_msg::set::UpdateObject;
+use crate::protobuf::usp_msg::set::{UpdateObject, UpdateParamSetting};
 use crate::telemetry::*;
 use crate::{
     protobuf::usp_msg::{
@@ -15,6 +15,10 @@ pub struct USPSet<'a> {
     msg_id: &'a String,
 }
 
+pub struct UpdateObjectBuilder {
+    obj_path: String,
+    param_settings: Vec<UpdateParamSetting>,
+}
 // static TRACING: OnceLock<()> = OnceLock::new();
 // fn tracing_init() {
 //     assert!(TRACING.get().is_none());

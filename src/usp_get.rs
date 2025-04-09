@@ -1,17 +1,26 @@
+use std::error::Error;
+
 // use crate::telemetry:*;
 use crate::{
     protobuf::usp_msg::{
         body::MsgBody, header::MsgType, request::ReqType, Body, Get, Header, Msg, Request,
     },
+    usp_agent::UspError,
     usp_msg_handle::UspMessageCreate,
 };
 // use std::sync::OnceLock;
 // use tracing_subscriber::filter::LevelFilter;
 
 pub struct USPGet<'a> {
-    param_paths: &'a [String],
+    param_paths: Vec<String>,
     max_depth: u32,
     msg_id: &'a str,
+}
+
+pub struct USPGetBuildier<'a> {
+    param_paths: Vec<String>,
+    max_depth: u32,
+    msg_id: Option<&'a String>,
 }
 
 // static TRACING: OnceLock<()> = OnceLock::new();
@@ -21,6 +30,39 @@ pub struct USPGet<'a> {
 //         init_subscriber(test_sub);
 //     });
 // }
+
+impl<'a> USPGetBuildier<'a> {
+    pub fn new(max_depth: u32, id: &'a String) -> Self {
+        USPGetBuildier {
+            param_paths: Vec::new(),
+            max_depth,
+            msg_id: Some(id),
+        }
+    }
+
+    pub fn add_parameter_path(mut self, param_path: String) -> Self {
+        self.param_paths.push(param_path);
+        self
+    }
+
+    pub fn delete_parameter_path(mut self, index: usize) -> Self {
+        self.param_paths.remove(index);
+        self
+    }
+
+    pub fn build(self) -> Result<USPGet<'a>, UspError> {
+        if let Some(msg_id) = self.msg_id {
+            let usp_get = USPGet {
+                param_paths: self.param_paths,
+                max_depth: self.max_depth,
+                msg_id,
+            };
+            Ok(usp_get)
+        } else {
+            Err(UspError::InvalidPathSyntax)
+        }
+    }
+}
 
 impl<'a> UspMessageCreate for USPGet<'a> {
     fn create_msg(&self) -> Msg {
