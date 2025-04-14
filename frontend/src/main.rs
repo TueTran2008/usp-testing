@@ -1,13 +1,6 @@
-// use std::ops::Div;
-
 use dioxus::{html::*, prelude::*};
-// pub use elements::*;
-// use dioxus_elements::div;
 
-// const FAVICON: Asset = asset!("/assets/favicon.ico");
-// const MAIN_CSS: Asset = asset!("/assets/main.css");
-// const HEADER_SVG: Asset = asset!("/assets/header.svg");
-
+static CSS: Asset = asset!("/assets/main.css");
 fn main() {
     dioxus::launch(App);
 }
@@ -15,17 +8,27 @@ fn main() {
 #[component]
 fn App() -> Element {
     rsx!(
-        div {
-            h1 {"HotDog!  🌭"}
-        }
-        div {
-            img {
-                src: "https://images.dog.ceo/breeds/pitbull/dog-3981540_1280.jpg"
+        document::Stylesheet { href: CSS }
+        div{
+            class: "login-container",
+            h1 {"Login"},
+            input {
+                class: "input-field",
+                r#type: "text",
+                placeholder: "Username",
+                oninput: move |e| println!("Username {}", e.value())
             }
-        }
-        div {
-            button { id: "skip", "skip"}
-            button { id: "save", "save!"}
+            input {
+                class: "input-field",
+                r#type: "password",
+                placeholder: "Password",
+                oninput: move |e| println!("Password {}", e.value())
+            }
+            button {
+                class: "login-button",
+                onclick: move |_| println!("Login clicked"),
+                "Login"
+            }
         }
     )
 }

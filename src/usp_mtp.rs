@@ -26,8 +26,8 @@ pub enum MtpData {
 }
 
 pub struct UspAgentMtpInstance {
-    mtp_protocol: MtpData,
-    name: String,
+    pub mtp_protocol: MtpData,
+    pub name: String,
 }
 
 #[async_trait]
@@ -70,7 +70,7 @@ impl MTPConnection for UspAgentMtpMQTT {
         )
         .await;
 
-        let (mqtt_tx, mut mqtt_rx) = mpsc::channel(4096);
+        let (mqtt_tx, mqtt_rx) = mpsc::channel(4096);
         mqtt_client
             .client
             .set_message_callback(move |_client, msg| {
@@ -89,6 +89,7 @@ impl MTPConnection for UspAgentMtpMQTT {
         self.receiver = Some(mqtt_rx);
         Ok(())
     }
+
     async fn send(&self, msg: &[u8]) -> Result<(), Box<dyn Error>> {
         let mqtt_client = self
             .client
@@ -104,6 +105,7 @@ impl MTPConnection for UspAgentMtpMQTT {
         let _pub_token = mqtt_client.client.publish(pub_msg).await?;
         Ok(())
     }
+
     async fn receive(&mut self) -> Result<Vec<u8>, Box<dyn Error>> {
         let mqtt_rx = self
             .receiver

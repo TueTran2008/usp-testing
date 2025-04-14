@@ -3,7 +3,7 @@ use crate::protobuf::usp_msg::record::{PayloadSecurity, RecordType};
 use crate::protobuf::usp_msg::{body::MsgBody, Record};
 use crate::protobuf::usp_msg::{Msg, NoSessionContextRecord};
 use crate::usp_msg_handle::MessageHandler;
-// use crate::usp_mtp::UspAgentMtpInstance;
+use crate::usp_mtp::{MTPConnection, MtpData, UspAgentMtpInstance};
 use prost::Message;
 // use std::collections::HashMap;
 use tracing::{error, info};
@@ -111,7 +111,7 @@ impl UspError {
 
 pub struct UspAgent {
     eid: String,
-    // mtp: HashMap<u32, UspAgentMtpInstance>,
+    mtp: Vec<UspAgentMtpInstance>,
 }
 
 struct GetResponseHandle;
@@ -138,7 +138,10 @@ impl MessageHandler for GetResponseHandle {
 
 impl UspAgent {
     pub fn new(eid: String) -> Self {
-        UspAgent { eid }
+        UspAgent {
+            eid,
+            mtp: Vec::new(),
+        }
     }
     fn get_eid(&self) -> &str {
         &self.eid
@@ -164,6 +167,33 @@ impl UspAgent {
             })),
             mac_signature: Vec::new(),
             sender_cert: Vec::new(),
+        }
+    }
+
+    pub async fn create_mtp_connection(&mut self, name: String, mut mtp: MtpData) {
+        match mtp {
+            MtpData::MQTT(ref mut mqtt_mtp) => {
+                let _ = mqtt_mtp.connect().await;
+            }
+        }
+        let agent_mtp = UspAgentMtpInstance {
+            name,
+            mtp_protocol: mtp,
+        };
+        self.mtp.push(agent_mtp);
+    }
+
+    pub fn handle_usp_msg(&mut self) {
+        for mut mtp_instance in self.mtp.into_iter() {
+            tokio::spawn(async move {
+                loop {
+                    match mtp_instance.mtp_protocol {
+                        MtpData::MQTT(ref mut mqtt) => {
+                            let msg = mqtt.receive().await;
+                        }
+                    }
+                }
+            });
         }
     }
 }
