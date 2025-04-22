@@ -35,6 +35,7 @@ pub trait MTPConnection {
     async fn connect(&mut self) -> Result<(), Box<dyn Error>>;
     async fn send(&self, msg: &[u8]) -> Result<(), Box<dyn Error>>;
     async fn receive(&mut self) -> Result<Vec<u8>, Box<dyn Error>>;
+    // async fn add_connection(&mut self) -> Result<(), Box<dyn Error>>;
     // async fn connect(&mut self, uri: String) -> Result<(), Box<dyn Error>>;
 }
 
