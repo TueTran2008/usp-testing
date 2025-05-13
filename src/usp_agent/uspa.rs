@@ -1,17 +1,15 @@
-use std::error::Error;
-
 use crate::protobuf::usp_msg::header::MsgType;
 use crate::protobuf::usp_msg::record::{PayloadSecurity, RecordType};
 use crate::protobuf::usp_msg::{body::MsgBody, Record};
 use crate::protobuf::usp_msg::{Msg, NoSessionContextRecord};
-use crate::usp_msg_handle::MessageHandler;
-use crate::usp_mtp::{MTPConnection, MtpData, UspAgentMtpInstance};
+use crate::usp_agent::usp_msg_handle::MessageHandler;
+use crate::usp_agent::usp_mtp::{MTPConnection, MtpData, UspAgentMtpInstance};
+use derive_more::From;
 use prost::Message;
 use std::sync::Arc;
 use tokio::sync::{mpsc, Mutex};
-// use std::collections::HashMap;
 use tracing::{error, info};
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, From)]
 #[repr(i32)]
 pub enum UspError {
     // General success
@@ -116,6 +114,10 @@ impl UspError {
 pub struct UspAgent {
     eid: String,
     mtp: Vec<UspAgentMtpInstance>,
+    mtp_channel: (
+        tokio::sync::mpsc::Sender<UspAgentMtpInstance>,
+        tokio::sync::mpsc::Receiver<UspAgentMtpInstance>,
+    ),
 }
 
 struct GetResponseHandle;
@@ -152,7 +154,7 @@ async fn receive_loop(share_mtp_instance: Arc<Mutex<UspAgentMtpInstance>>) {
                     &instance.name
                 );
             }
-            Err(err) => {
+            Err(_err) => {
                 error!("Error when receiving MQTT message from ...");
                 break;
             }
@@ -162,9 +164,11 @@ async fn receive_loop(share_mtp_instance: Arc<Mutex<UspAgentMtpInstance>>) {
 
 impl UspAgent {
     pub fn new(eid: String) -> Self {
+        let (mtp_tx, mtp_rx) = tokio::sync::mpsc::channel(100);
         UspAgent {
             eid,
             mtp: Vec::new(),
+            mtp_channel: (mtp_tx, mtp_rx),
         }
     }
     fn get_eid(&self) -> &str {
@@ -208,16 +212,16 @@ impl UspAgent {
     }
 
     pub async fn run_dynamic_mtp_manager(
-        mut receiver: tokio::sync::mpsc::Receiver<UspAgentMtpInstance>,
+        // mut receiver: tokio::sync::mpsc::Receiver<UspAgentMtpInstance>,
+        &mut self,
     ) {
-        while let Some(instance) = receiver.recv().await {
+        while let Some(instance) = self.mtp_channel.1.recv().await {
             let share_instance = Arc::new(Mutex::new(instance));
-            // tokio::spawn(receive_loop(share_instance));
             tokio::spawn(receive_loop(share_instance));
         }
     }
 
-    pub async fn start_mtp_receivers(&mut self) {
-        todo!("Implement this function");
-    }
+    // pub async fn start_mtp_receivers(&mut self) {
+    //     todo!("Implement this function");
+    // }
 }

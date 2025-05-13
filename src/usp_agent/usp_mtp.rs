@@ -64,8 +64,8 @@ impl MTPConnection for UspAgentMtpMQTT {
             .ok_or("MQTT password is empty")?;
         let mqtt_client = MQTTClient::connect(
             self.config.version,
-            self.config.broker.as_ref(),
-            self.config.client_id.as_ref(),
+            self.config.broker.clone(),
+            self.config.client_id.clone(),
             username,
             password,
         )

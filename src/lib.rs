@@ -1,9 +1,11 @@
+// -- public module
 pub mod configuration;
+pub mod error;
 pub mod mqtt_client;
 pub mod protobuf;
 pub mod telemetry;
 pub mod usp_agent;
-pub mod usp_get;
-pub mod usp_msg_handle;
-pub mod usp_mtp;
-pub mod usp_set;
+
+//
+// use usp_agent::*;
+// --Flatten

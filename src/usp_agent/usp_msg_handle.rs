@@ -1,11 +1,9 @@
-use crate::{
-    protobuf::usp_msg::{
-        header::MsgType,
-        record::{PayloadSecurity, RecordType},
-        Msg, Record,
-    },
-    usp_agent::{UspAgent, UspError},
+use crate::protobuf::usp_msg::{
+    header::MsgType,
+    record::{PayloadSecurity, RecordType},
+    Msg, Record,
 };
+use crate::usp_agent::uspa::{UspAgent, UspError};
 use prost::Message;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -34,9 +32,6 @@ pub enum MessageDispatcherError {
     NoHandlerFound(String),
 }
 
-pub trait UspMessageCreate {
-    fn create_msg(&self) -> Msg;
-}
 // Trait for message handlers with dynamic dispatch
 // Trait for handling different message types
 pub trait MessageHandler: Send + Sync {

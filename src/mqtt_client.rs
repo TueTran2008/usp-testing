@@ -1,5 +1,5 @@
 use paho_mqtt::{self as mqtt, AsyncClient};
-use std::{process, time::Duration};
+use std::{collections::HashMap, process, time::Duration};
 
 // #[warn(dead_code)]
 // pub struct ClientInfo {
@@ -16,10 +16,10 @@ pub struct MQTTClient {
 impl MQTTClient {
     pub async fn connect(
         version: mqtt::MqttVersion,
-        host: &str,
-        client_id: &str,
-        user_name: &str,
-        password: &str,
+        host: impl Into<String>,
+        client_id: impl Into<String>,
+        user_name: impl Into<String>,
+        password: impl Into<String>,
     ) -> MQTTClient {
         let option = match version {
             mqtt::MqttVersion::V5 => {

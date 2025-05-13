@@ -1,0 +1,17 @@
+1) Struct literals and simple constructor functions are great ways to create structs and enums. 
+
+2) Builder pattern are useful when building the more complex data structure, especially when step building is required. 
+
+3) non-consuming-builder-pattern prop...(&mut self) and build(&self), can be considered more ergonomic, but would require unnecessary allocations when the object built needs to own the data passed to the builder. 
+
+4) non-consuming-builder-pattern with mutable build (i.e. build(&mut self) ) could be considered a bad pattern, as calling build() twice will give different result (except in the 6) case).
+
+5) The consuming-builder-pattern requires reassigning the builder for each "builder chain command" and cloning if the builder needs to be reused. But it allows to avoid uncessary allocations. 
+
+6) In some situation, where the object built does not take any value from the builder, the non-consuming-builder-pattern might be appropriate.
+
+7) Personally, other than 6), I find the Consuming-builder-pattern better aligned with the compiler ownership rules. New allocations become explicit by requiring clone, and the builder cannot be reused without explicit clone. 
+
+8) However, study the pros & cons of each pattern, and use what makes sense to you and your team for your given use-cases. 
+
+9) The "impl Into String " pattern is not related to constructor or builder patterns but can be used with any function. Use this pattern if you find it productive and relevant to your use case. This previous video:    • Rust Tip - Into String as Function Ar...  
