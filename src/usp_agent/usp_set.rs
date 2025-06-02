@@ -1,4 +1,4 @@
-use crate::protobuf::usp_msg::set::{UpdateObject, UpdateParamSetting};
+use crate::usp_agent::protobuf::usp_msg::set::{UpdateObject, UpdateParamSetting};
 // use crate::telemetry::*;
 
 pub struct USPSet {

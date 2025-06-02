@@ -1,14 +1,6 @@
 use paho_mqtt::{self as mqtt, AsyncClient};
 use std::{collections::HashMap, process, time::Duration};
 
-// #[warn(dead_code)]
-// pub struct ClientInfo {
-//     host: String,
-//     client_id: String,
-//     user_name: String,
-//     password: String,
-// }
-
 pub struct MQTTClient {
     pub client: AsyncClient,
 }

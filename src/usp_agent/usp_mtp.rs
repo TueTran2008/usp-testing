@@ -3,7 +3,6 @@ use async_trait::async_trait;
 use paho_mqtt::{Message, MqttVersion, QoS};
 use std::error::Error;
 use tokio::sync::mpsc;
-// use tracing::{error, info};
 
 pub struct MQTTConfig {
     broker: String,

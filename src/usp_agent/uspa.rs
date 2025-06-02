@@ -1,7 +1,8 @@
-use crate::protobuf::usp_msg::header::MsgType;
-use crate::protobuf::usp_msg::record::{PayloadSecurity, RecordType};
-use crate::protobuf::usp_msg::{body::MsgBody, Record};
-use crate::protobuf::usp_msg::{Msg, NoSessionContextRecord};
+use crate::usp_agent::protobuf::usp_msg::header::MsgType;
+use crate::usp_agent::protobuf::usp_msg::record::{PayloadSecurity, RecordType};
+use crate::usp_agent::protobuf::usp_msg::{body::MsgBody, Record};
+use crate::usp_agent::protobuf::usp_msg::{Msg, NoSessionContextRecord};
+
 use crate::usp_agent::usp_msg_handle::MessageHandler;
 use crate::usp_agent::usp_mtp::{MTPConnection, MtpData, UspAgentMtpInstance};
 use derive_more::From;
@@ -9,6 +10,7 @@ use prost::Message;
 use std::sync::Arc;
 use tokio::sync::{mpsc, Mutex};
 use tracing::{error, info};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, From)]
 #[repr(i32)]
 pub enum UspError {

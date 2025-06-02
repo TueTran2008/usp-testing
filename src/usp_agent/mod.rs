@@ -1,4 +1,5 @@
 // region:    --- Modules
+mod protobuf;
 mod usp_get;
 mod usp_msg_handle;
 mod usp_mtp;

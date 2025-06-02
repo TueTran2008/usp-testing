@@ -14,21 +14,30 @@
 // use std::error::Error;
 // use tokio::sync::mpsc;
 // use tracing::{error, info, warn};
-// use tracing_subscriber::filter::LevelFilter;
-//use prost
-mod error;
-mod usp_agent;
+// mod error;
+// mod usp_agent;
 
-use crate::error::{Error, Result};
-use crate::usp_agent::uspa::UspAgent;
-
+// use crate::error::{Error, Result};
+// use crate::usp_agent::uspa::UspAgent;
+//use crate::UspAgent;
+// use crate::usp_agent::uspa::UspAgent;
+// use usp_controller::error::Result;
+//mod error;
+// use crate::error::Error;
 // #[tokio::main]
+// extern crate usp_controllerV;
+extern crate usp_controller;
+use usp_controller::error::Result;
+use usp_controller::usp_agent::uspa::UspAgent;
 fn main() -> Result<()> {
-    let mut rt = tokio::runtime::Runtime::new().unwrap();
+    let rt = tokio::runtime::Runtime::new().unwrap();
     rt.block_on(async {
         let mut usp = UspAgent::new("proto::DarwinTran2008".to_string());
-        tokio::spawn(usp.run_dynamic_mtp_manager());
+        tokio::spawn(async move {
+            usp.run_dynamic_mtp_manager().await;
+        });
     });
+    loop {}
     // build our application with a single route
     // let app = Router::new().route("/", get(|| async { "Hello, World!" }));
     //
